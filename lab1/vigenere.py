@@ -21,6 +21,10 @@ def get_args() -> argp.Namespace:
     return parser.parse_args()
 
 
+def prepare_string(text: str) -> str:
+    return re.sub(r'[\t\r\n ]', '', text).upper()
+
+
 class Vigenere:
     def __init__(self, alphabet=(string.ascii_uppercase + '_')):
         self.ALPHABET = alphabet
@@ -28,7 +32,7 @@ class Vigenere:
 
         self.matrix = [[] for _ in range(3)]
 
-    def print_setup(self):
+    def print_setup(self) -> None:
         print(f'Alphabet: {self.ALPHABET}')
         print(f'Text:     {self.matrix[0]}')
         print(f'Key fill: {self.matrix[1]}')
@@ -85,9 +89,15 @@ class Vigenere:
 if __name__ == '__main__':
     ARGS = vars(get_args())
 
-    app = Vigenere()
+    app: Vigenere
 
-    text = ''
+    if alphabet := ARGS['alphabet']:
+        app = Vigenere(prepare_string(alphabet))
+
+    else:
+        app = Vigenere()
+
+    text: str
 
     if text := ARGS['t']:
         pass
@@ -96,8 +106,10 @@ if __name__ == '__main__':
         with open(filepath, 'r') as f:
             text = ''.join(f.readlines())
 
-    text = re.sub(r'[\t\r\n ]', '', text).upper()
-    key = re.sub(r'[\t\r\n ]', '', ARGS['k']).upper()
+    assert text, 'no input text available'
+
+    text = prepare_string(text)
+    key = prepare_string(ARGS['k'])
 
     if ARGS['dec']:
         text = app.decrypt(text, key)
