@@ -96,10 +96,8 @@ if __name__ == '__main__':
         with open(filepath, 'r') as f:
             text = ''.join(f.readlines())
 
-    text = re.sub(r'\n+', ' ', text)
-    text = re.sub(r'[\t\r ]', '', text).upper()
-
-    key = re.sub(r'[\n\t ]', '', ARGS['k']).upper()
+    text = re.sub(r'[\t\r\n ]', '', text).upper()
+    key = re.sub(r'[\t\r\n ]', '', ARGS['k']).upper()
 
     if ARGS['dec']:
         text = app.decrypt(text, key)
