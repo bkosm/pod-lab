@@ -19,11 +19,8 @@
     <select />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="5d8cdd66-1175-4d97-aebb-401e0ad7b1d0" name="Default Changelist" comment="">
-      <change afterPath="$PROJECT_DIR$/text.txt" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/vigenere.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/vignere.py" beforeDir="false" />
+    <list default="true" id="5d8cdd66-1175-4d97-aebb-401e0ad7b1d0" name="Default Changelist" comment="done">
+      <change afterPath="$PROJECT_DIR$/README.md" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -85,6 +82,14 @@
       <option name="presentableId" value="Default" />
       <updated>1602356735371</updated>
     </task>
+    <task id="LOCAL-00001" summary="done">
+      <created>1602418692944</created>
+      <option name="number" value="00001" />
+      <option name="presentableId" value="LOCAL-00001" />
+      <option name="project" value="LOCAL" />
+      <updated>1602418692944</updated>
+    </task>
+    <option name="localTasksCounter" value="2" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -98,6 +103,10 @@
       </map>
     </option>
     <option name="oldMeFiltersMigrated" value="true" />
+  </component>
+  <component name="VcsManagerConfiguration">
+    <MESSAGE value="done" />
+    <option name="LAST_COMMIT_MESSAGE" value="done" />
   </component>
   <component name="WindowStateProjectService">
     <state x="414" y="174" width="1092" height="715" key="#com.intellij.execution.impl.EditConfigurationsDialog" timestamp="1602416366426">
@@ -124,5 +133,9 @@
       <screen x="0" y="0" width="1920" height="1040" />
     </state>
     <state width="1899" height="282" key="GridCell.Tab.0.right/0.0.1920.1040/-900.-169.900.1400@0.0.1920.1040" timestamp="1602417679501" />
+    <state x="552" y="252" key="Vcs.Push.Dialog.v2" timestamp="1602418699289">
+      <screen x="0" y="0" width="1920" height="1040" />
+    </state>
+    <state x="552" y="252" key="Vcs.Push.Dialog.v2/0.0.1920.1040/-900.-169.900.1400@0.0.1920.1040" timestamp="1602418699289" />
   </component>
 </project>
