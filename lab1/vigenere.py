@@ -1,9 +1,13 @@
 import argparse as argp
 import re
 import string
+from typing import Any
 
 
-def get_args() -> argp.Namespace:
+def get_args() -> dict[str, Any]:
+    """
+    Parse command line arguments and return them as a dictionary.
+    """
     parser = argp.ArgumentParser(description="Encrypt or decrypt given message with the Vignere cipher.")
 
     parser.add_argument('-v', action='store_true', help='set verbose output')
@@ -18,21 +22,25 @@ def get_args() -> argp.Namespace:
     parser.add_argument('--alphabet', type=str, metavar='STRING', help='use a custom alphabet indexed in given order '
                                                                        '(ex. "ABCD_")')
 
-    return parser.parse_args()
-
-
-def prepare_string(text: str) -> str:
-    return re.sub(r'[\t\r\n ]', '', text).upper()
+    return vars(parser.parse_args())
 
 
 class Vigenere:
     def __init__(self, alphabet=(string.ascii_uppercase + '_')):
+        """
+        Construct the Vigenere cipher solver object.
+
+        :param alphabet: Custom alphabet to use, the default is [A-Z_].
+        """
         self.ALPHABET = alphabet
         self.CHAR_MAP = dict(zip([c for c in self.ALPHABET], [i for i in range(0, len(self.ALPHABET))]))
 
         self.matrix = [[] for _ in range(3)]
 
     def print_setup(self) -> None:
+        """
+        Print used alphabet, decrypted text, key setup and the cipher.
+        """
         print(f'Alphabet: {self.ALPHABET}')
         print(f'Text:     {self.matrix[0]}')
         print(f'Key fill: {self.matrix[1]}')
@@ -82,12 +90,24 @@ class Vigenere:
         return ''.join(self.matrix[0])
 
     def _verify_input_text(self, text: str) -> None:
+        """
+        Check whether the text contains valid chars.
+
+        :raises AssertionError: when any char in given text doesn't exist in the object's alphabet
+        """
         for letter in text:
             assert letter in self.ALPHABET, "a letter in the input text doesn't match the alphabet"
 
 
+def prepare_string(text: str) -> str:
+    """
+    Clean string from whitespace chars and set it to uppercase.
+    """
+    return re.sub(r'[\t\r\n ]', '', text).upper()
+
+
 if __name__ == '__main__':
-    ARGS = vars(get_args())
+    ARGS = get_args()
 
     app: Vigenere
 
