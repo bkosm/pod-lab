@@ -1,2 +1,3 @@
 # pod-lab
-Programy z przedmiotu Podstawy Ochrony Danych.
+
+Podstawy Ochrony Danych, semestr 5 @ PUT
