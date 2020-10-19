@@ -26,7 +26,7 @@ class Vigenere:
             raise TypeError("the given alphabet must be str")
 
         self.__alphabet = value
-        self.__char_map = dict(zip([c for c in self.__alphabet], [i for i in range(0, len(self.__alphabet))]))
+        self.__char_map = {c: i for (i, c) in enumerate((c for c in self.__alphabet))}
 
     def print_setup(self) -> None:
         """
