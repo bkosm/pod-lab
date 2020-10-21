@@ -37,10 +37,10 @@ class Fips140_2TestsFor20kElemSeries:
                 counter = 1
 
         for (key, value) in Fips140_2TestsFor20kElemSeries.VALID_SERIES.items():
-            if actual_results[key] < value[0] or value[1] < actual_results[key]:
-                return False, actual_results
+            if actual_results[key] / 2 < value[0] or value[1] < actual_results[key] / 2:
+                return False
 
-        return True, actual_results
+        return True
 
     @staticmethod
     def long_series(series: list[bool]) -> bool:
@@ -94,6 +94,5 @@ if __name__ == '__main__':
 
     print(f'Single bits  = {Fips140_2TestsFor20kElemSeries.single_bits(series)}')
     print(f'Series       = {Fips140_2TestsFor20kElemSeries.series(series)}')
-    print(f'      (Valid = {Fips140_2TestsFor20kElemSeries.VALID_SERIES})')
     print(f'Long series  = {Fips140_2TestsFor20kElemSeries.long_series(series)}')
     print(f'Poker        = {Fips140_2TestsFor20kElemSeries.poker(series)}')
