@@ -23,21 +23,21 @@ class Fips140_2TestsFor20kElemSeries:
 
         actual_results = {i: 0 for i in range(1, 7)}
 
-        last = series[0]
         counter = 0
+        streak = False
 
         for elem in series:
-            if elem == last:
+            if elem:
+                streak = True
                 counter += 1
 
-            else:
+            elif streak and not elem:
                 actual_results[counter if counter < 6 else 6] += 1
-
-                last = elem
-                counter = 1
+                streak = False
+                counter = 0
 
         for (key, value) in Fips140_2TestsFor20kElemSeries.VALID_SERIES.items():
-            if actual_results[key] / 2 < value[0] or value[1] < actual_results[key] / 2:
+            if actual_results[key] < value[0] or value[1] < actual_results[key]:
                 return False
 
         return True
