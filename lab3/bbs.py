@@ -71,10 +71,7 @@ class Bbs:
         """
         Euclides recursive algorithm for finding the greatest common divisor of two integers.
         """
-        if b == 0:
-            return a
-        else:
-            return Bbs.greatest_common_divisor(b, a % b)
+        return a if b == 0 else Bbs.greatest_common_divisor(b, a % b)
 
     @staticmethod
     def generate(length: int, bit_size: int = 512) -> list[bool]:
@@ -85,11 +82,17 @@ class Bbs:
         :param bit_size: maximum bit size of the prime numbers used to generate the Blum number
         :return: generated series
         """
-        blum_number = Bbs.valid_prime(bit_size) * Bbs.valid_prime(bit_size)
+        prime1 = Bbs.valid_prime(bit_size)
+        prime2 = Bbs.valid_prime(bit_size)
+
+        print(f"p = {prime1}")
+        print(f"q = {prime2}")
+
+        blum_number = prime1 * prime2
 
         x = 0
 
-        while Bbs.greatest_common_divisor(x, blum_number) != 1:
+        while Bbs.greatest_common_divisor(x, blum_number) != 1 and x != blum_number:
             x = randint(1, blum_number)
 
         result = []
@@ -101,6 +104,3 @@ class Bbs:
             elem = pow(elem, 2, blum_number)
 
         return result
-
-
-
