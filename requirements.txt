@@ -2,3 +2,5 @@ wheel
 setuptools
 argparse
 pycryptodomex
+asyncio
+faker
