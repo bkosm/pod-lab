@@ -26,7 +26,7 @@ def duration_ms(start: int) -> int:
     return current_ms() - start
 
 
-def ecb_test(text: str, key: str) -> None:
+def ecb_test(text: str, key: str) -> (int, int, int):
     start = current_ms()
     ciphertext = ECB.encrypt(text, key)
     encrypt_duration = duration_ms(start)
@@ -35,11 +35,15 @@ def ecb_test(text: str, key: str) -> None:
     result = ECB.decrypt(ciphertext, key)
     decrypt_duration = duration_ms(start)
 
+    total = encrypt_duration + decrypt_duration
+
     print(f"e={encrypt_duration}, d={decrypt_duration}\t"
           + f"total = {encrypt_duration + decrypt_duration} [ms]")
 
+    return encrypt_duration, decrypt_duration, total
 
-def cbc_test(text: str, key: str) -> None:
+
+def cbc_test(text: str, key: str) -> (int, int, int):
     start = current_ms()
     ciphertext, iv = CBC.encrypt(text, key)
     encrypt_duration = duration_ms(start)
@@ -48,11 +52,15 @@ def cbc_test(text: str, key: str) -> None:
     result = CBC.decrypt(ciphertext, iv, key)
     decrypt_duration = duration_ms(start)
 
+    total = encrypt_duration + decrypt_duration
+
     print(f"e={encrypt_duration}, d={decrypt_duration}\t"
-          + f"total = {encrypt_duration + decrypt_duration} [ms]")
+          + f"total = {total} [ms]")
+
+    return encrypt_duration, decrypt_duration, total
 
 
-def ofb_test(text: str, key: str) -> None:
+def ofb_test(text: str, key: str) -> (int, int, int):
     start = current_ms()
     ciphertext, iv = OFB.encrypt(text, key)
     encrypt_duration = duration_ms(start)
@@ -61,11 +69,15 @@ def ofb_test(text: str, key: str) -> None:
     result = OFB.decrypt(ciphertext, iv, key)
     decrypt_duration = duration_ms(start)
 
+    total = encrypt_duration + decrypt_duration
+
     print(f"e={encrypt_duration}, d={decrypt_duration}\t"
-          + f"total = {encrypt_duration + decrypt_duration} [ms]")
+          + f"total = {total} [ms]")
+
+    return encrypt_duration, decrypt_duration, total
 
 
-def cfb_test(text: str, key: str) -> None:
+def cfb_test(text: str, key: str) -> (int, int, int):
     start = current_ms()
     ciphertext, iv = CFB.encrypt(text, key)
     encrypt_duration = duration_ms(start)
@@ -74,27 +86,45 @@ def cfb_test(text: str, key: str) -> None:
     result = CFB.decrypt(ciphertext, iv, key)
     decrypt_duration = duration_ms(start)
 
+    total = encrypt_duration + decrypt_duration
+
     print(f"e={encrypt_duration}, d={decrypt_duration}\t"
-          + f"total = {encrypt_duration + decrypt_duration} [ms]")
+          + f"total = {total} [ms]")
+
+    return encrypt_duration, decrypt_duration, total
 
 
-def ctr_test(text: str, key: str) -> None:
-    print('Encryption...')
+def ctr_test(text: str, key: str) -> (int, int, int):
     start = current_ms()
     ciphertext, nonce = CTR.encrypt(text, key)
     encrypt_duration = duration_ms(start)
 
-    print('Decryption...')
     start = current_ms()
     result = CTR.decrypt(ciphertext, nonce, key)
     decrypt_duration = duration_ms(start)
 
-    print(f"e={encrypt_duration}, d={decrypt_duration}\t"
-          + f"total = {encrypt_duration + decrypt_duration} [ms]")
+    total = encrypt_duration + decrypt_duration
 
+    print(f"e={encrypt_duration}, d={decrypt_duration}\t"
+          + f"total = {total} [ms]")
+
+    return encrypt_duration, decrypt_duration, total
+
+def get_averages(results: list[tuple[int, int, int]]) -> (int, int, int):
+    sum_enc = 0
+    sum_dec = 0
+    sum_tot = 0
+
+    for (e, d, t) in results:
+        sum_enc += e
+        sum_dec += d
+        sum_tot += t
+
+    return sum_enc / len(results), sum_dec / len(results), sum_tot / len(results)
 
 def file_test(sizes: list[int]) -> None:
     create_files(sizes)
+    rounds = 5
 
     key = ''.join([random.choice(ASCII) for _ in range(16)])
     print(f'KEY = {key}')
@@ -106,19 +136,24 @@ def file_test(sizes: list[int]) -> None:
             print(f"\nTesting with a file of {size}MB...")
 
             print(f"ECB...")
-            ecb_test(text, key)
+            e, d, t = get_averages([ecb_test(text, key) for _ in range(rounds)])
+            print(f"avg enc = {e}\t avg dec = {d}\t avg tot = {t}\n")
 
             print(f"CBC...")
-            cbc_test(text, key)
+            e, d, t = get_averages([cbc_test(text, key) for _ in range(rounds)])
+            print(f"avg enc = {e}\t avg dec = {d}\t avg tot = {t}\n")
 
             print(f"OFB...")
-            ofb_test(text, key)
+            e, d, t = get_averages([ofb_test(text, key) for _ in range(rounds)])
+            print(f"avg enc = {e}\t avg dec = {d}\t avg tot = {t}\n")
 
             print(f"CFB...")
-            cfb_test(text, key)
+            e, d, t = get_averages([cfb_test(text, key) for _ in range(rounds)])
+            print(f"avg enc = {e}\t avg dec = {d}\t avg tot = {t}\n")
 
             print(f"CTR...")
-            ctr_test(text, key)
+            e, d, t = get_averages([ctr_test(text, key) for _ in range(rounds)])
+            print(f"avg enc = {e}\t avg dec = {d}\t avg tot = {t}\n")
 
 
 def corrupt(b: bytes, position: int = 0) -> bytes:
@@ -135,7 +170,7 @@ def error_test() -> None:
     :return:
     """
     key = ''.join([random.choice(ASCII) for _ in range(16)])
-    text = 'some text to check how will the output look after the ciphertext is corrupted'
+    text = 'some text to check how the output will look after the ciphertext is corrupted'
 
     print(f'\nByte corruption test\nPlain text = "{text}"\nKey = "{key}"\n')
 
