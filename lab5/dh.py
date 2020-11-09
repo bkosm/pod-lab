@@ -59,7 +59,7 @@ class Application:
 
         self.__private_key, self.public_key, self.session_key = 0, 0, 0
 
-    def generate_public_key(self, private_bit_size: int = 256):
+    def generate_public_key(self, private_bit_size: int = 256) -> int:
         self.__private_key, self.public_key = DiffiHelman.intermediate_keys(self.prime, self.root, private_bit_size)
 
         return self.public_key
