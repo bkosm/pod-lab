@@ -1,4 +1,6 @@
-from math import gcd
+from math import gcd, sqrt
+from typing import Union
+
 from Cryptodome.Random.random import getrandbits
 
 from lab3.bbs import Bbs
@@ -9,11 +11,35 @@ class DiffiHelman:
     random_prime = Bbs.random_prime
 
     @staticmethod
-    def first_primitive_root(modulo: int) -> int:
-        coprimes = {num for num in range(1, modulo) if gcd(num, modulo) == 1}
+    def find_coprimes(modulo: int) -> set[int]:
+        out = set()
 
-        return next(g for g in range(1, modulo) if coprimes == {pow(g, powers, modulo)
-                                                                for powers in range(1, modulo)})
+        while modulo % 2 == 0:
+            out.add(2)
+            modulo //= 2
+
+        for i in range(3, int(sqrt(modulo)), 2):
+            while modulo % i == 0:
+                out.add(i)
+                modulo //= i
+
+        if modulo > 2:
+            out.add(modulo)
+
+        return out
+
+    @staticmethod
+    def first_primitive_root(modulo: int) -> Union[int, None]:
+        phi = modulo - 1
+
+        coprimes = DiffiHelman.find_coprimes(phi)
+
+        for r in range(2, phi + 1):
+            for it in coprimes:
+                if pow(r, phi // it, modulo) != 1:
+                    return r
+
+        return None
 
     @staticmethod
     def random_arguments(prime_bit_size: int = 16) -> (int, int):
@@ -36,6 +62,8 @@ class DiffiHelman:
         start = current_ms()
         prime, root = DiffiHelman.random_arguments(prime_bit_size)
         print(f"'n' and 'g' generation time = {duration_ms(start)} [ms]")
+
+        print(f"n = {prime}, g = {root}")
 
         start = current_ms()
         a_priv, a_public = DiffiHelman.intermediate_keys(prime, root)
@@ -68,8 +96,8 @@ class Application:
         self.session_key = DiffiHelman.session_key(self.__private_key, public_key, self.prime)
 
 
-if __name__ == '__main__':
-    prime, root = DiffiHelman.random_arguments(20)
+def main() -> None:
+    prime, root = DiffiHelman.random_arguments(56)
 
     a = Application(prime, root)
     b = Application(prime, root)
@@ -83,3 +111,9 @@ if __name__ == '__main__':
     b.digest_public_key(a.public_key)
 
     print(f"a key = {a.session_key}, b key = {b.session_key}")
+
+
+if __name__ == '__main__':
+    main()
+
+    DiffiHelman.test(56)
