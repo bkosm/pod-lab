@@ -1,4 +1,4 @@
-from math import gcd, sqrt
+from math import sqrt
 from typing import Union
 
 from Cryptodome.Random.random import getrandbits
@@ -99,6 +99,8 @@ class Application:
 def main() -> None:
     prime, root = DiffiHelman.random_arguments(56)
 
+    print(f"n = {prime}, g = {root}")
+
     a = Application(prime, root)
     b = Application(prime, root)
 
@@ -116,4 +118,5 @@ def main() -> None:
 if __name__ == '__main__':
     main()
 
+    print("\nTest:")
     DiffiHelman.test(56)

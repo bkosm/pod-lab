@@ -1,0 +1,2 @@
+from lab3.fips_tests import Fips140_2TestsFor20kElemSeries
+
