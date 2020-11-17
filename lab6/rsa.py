@@ -7,7 +7,7 @@ def are_coprimes(prime_a: int, prime_b: int) -> bool:
     return gcd(prime_a, prime_b) == 1
 
 
-def extended_gcd(a: int, b: int) -> tuple[int, int, int]:
+def extended_gcd(a: int, b: int) -> (int, int, int):
     if a == 0:
         return b, 0, 1
 
@@ -32,7 +32,7 @@ class RSA:
         return x % phi if g == 1 else None
 
     @staticmethod
-    def generate_keys() -> tuple[tuple[int, int], tuple[int, int]]:
+    def generate_keys() -> ((int, int), (int, int)):
         p = random_prime(256)
         q = random_prime(256)
 
@@ -48,6 +48,28 @@ class RSA:
 
         return (e, n), (d, n)
 
+    @staticmethod
+    def encrypt(message: str, keys: (int, int)) -> [int]:
+        e, n = keys
+
+        return [pow(ord(c), e, n) for c in message]
+
+    @staticmethod
+    def decrypt(encrypted: [int], keys: (int, int)) -> str:
+        d, n = keys
+
+        return ''.join([chr(pow(c, d, n)) for c in encrypted])
+
 
 if __name__ == '__main__':
-    RSA.generate_keys()
+    public, private = RSA.generate_keys()
+    text = "Typowy testowy tekst z polskim znakiem ń."
+
+    encrypted = RSA.encrypt(text, public)
+
+    print(f"{encrypted=}")
+
+    decrypted = RSA.decrypt(encrypted, private)
+
+    print(f"{decrypted=}")
+
