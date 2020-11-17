@@ -1,4 +1,4 @@
-from lab3.bbs import Bbs
+from lab3.bbs import BBS
 
 
 class Fips140_2TestsFor20kElemSeries:
@@ -99,20 +99,22 @@ class Fips140_2TestsFor20kElemSeries:
             else:
                 print(style(elem), end='')
 
+    @staticmethod
+    def test_visual(series: [bool]) -> None:
+        c1, v1 = Fips140_2TestsFor20kElemSeries.single_bits(series)
+        c2, v2 = Fips140_2TestsFor20kElemSeries.series(series)
+        c3 = Fips140_2TestsFor20kElemSeries.long_series(series)
+        c4, v4 = Fips140_2TestsFor20kElemSeries.poker(series)
+
+        print(f'Single bits  = {c1} => {v1}')
+        print(f'Series       = {c2} => {v2}')
+        print(f'Long series  = {c3}')
+        print(f'Poker        = {c4} => {v4}')
+
 
 if __name__ == '__main__':
-    series = Bbs.generate(20000)
+    series = BBS.generate(20000)
 
-    c1, v1 = Fips140_2TestsFor20kElemSeries.single_bits(series)
-    c2, v2 = Fips140_2TestsFor20kElemSeries.series(series)
-    c3 = Fips140_2TestsFor20kElemSeries.long_series(series)
-    c4, v4 = Fips140_2TestsFor20kElemSeries.poker(series)
-
-    print(f'Single bits  = {c1} => {v1}')
-    print(f'Series       = {c2} => {v2}')
-    print(f'Long series  = {c3}')
-    print(f'Poker        = {c4} => {v4}')
-
+    Fips140_2TestsFor20kElemSeries.test_visual(series)
     Fips140_2TestsFor20kElemSeries.visualize(series)
-
     Fips140_2TestsFor20kElemSeries.test(series)

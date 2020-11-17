@@ -1,7 +1,7 @@
 from Cryptodome.Random.random import getrandbits, randint
 
 
-class Bbs:
+class BBS:
     @staticmethod
     def is_probably_prime(num: int, rounds: int) -> bool:
         """
@@ -48,7 +48,7 @@ class Bbs:
         while True:
             num = getrandbits(bit_size)
 
-            if Bbs.is_probably_prime(num, rounds):
+            if BBS.is_probably_prime(num, rounds):
                 return num
 
     @staticmethod
@@ -61,9 +61,9 @@ class Bbs:
         Generate a prime number that is BBS algorithm valid.
         """
         while True:
-            num = Bbs.random_prime(bit_size)
+            num = BBS.random_prime(bit_size)
 
-            if Bbs.is_congrugent(num, 3, 4):
+            if BBS.is_congrugent(num, 3, 4):
                 return num
 
     @staticmethod
@@ -71,28 +71,33 @@ class Bbs:
         """
         Euclides recursive algorithm for finding the greatest common divisor of two integers.
         """
-        return a if b == 0 else Bbs.greatest_common_divisor(b, a % b)
+        return a if b == 0 else BBS.greatest_common_divisor(b, a % b)
 
     @staticmethod
-    def generate(length: int, bit_size: int = 512) -> list[bool]:
+    def generate(length: int, bit_size: int = 512, preseed: int = None) -> list[bool]:
         """
         Generate random bit series using the BBS algorithm.
 
         :param length: length of the output series
         :param bit_size: maximum bit size of the prime numbers used to generate the Blum number
+        :param preseed: preinitialize Blum number's value
         :return: generated series
         """
-        prime1 = Bbs.valid_prime(bit_size)
-        prime2 = Bbs.valid_prime(bit_size)
 
-        print(f"p = {prime1}")
-        print(f"q = {prime2}")
+        blum_number = 0
 
-        blum_number = prime1 * prime2
+        if preseed is not None:
+            blum_number = preseed
+
+        else:
+            prime1 = BBS.valid_prime(bit_size)
+            prime2 = BBS.valid_prime(bit_size)
+
+            blum_number = prime1 * prime2
 
         x = 0
 
-        while Bbs.greatest_common_divisor(x, blum_number) != 1 and x != blum_number:
+        while BBS.greatest_common_divisor(x, blum_number) != 1 and x != blum_number:
             x = randint(1, blum_number)
 
         result = []

@@ -3,12 +3,12 @@ from typing import Union
 
 from Cryptodome.Random.random import getrandbits
 
-from lab3.bbs import Bbs
+from lab3.bbs import BBS
 from lab4.aes_tests import current_ms, duration_ms
 
 
 class DiffiHelman:
-    random_prime = Bbs.random_prime
+    random_prime = BBS.random_prime
 
     @staticmethod
     def find_coprimes(modulo: int) -> set[int]:
