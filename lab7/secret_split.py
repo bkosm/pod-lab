@@ -1,5 +1,5 @@
 from Cryptodome.Random.random import randint as randint_range
-from Cryptodome.Util.number import getRandomInteger as randint_bits, getStrongPrime as random_prime
+from Cryptodome.Util.number import getRandomInteger as randint_bits, getPrime as random_prime
 
 from random import sample
 
@@ -7,13 +7,15 @@ from lab4.aes_tests import current_ms, duration_ms
 
 
 def max_of_nbit(n: int) -> int:
-    """
-        Integer value from n times '1' in number's binary representation.
+    """ Integer value from n times '1' in number's binary representation.
     """
     return int('1' * n, 2)
 
 
-def minus_mod(num: int, value: int) -> int:
+def neg_mod(num: int, value: int) -> int:
+    """ Negative modulus to standard format.
+        Example: `neg_mod(-5, 4) == 1`
+    """
     return num - int(num / value) * value
 
 
@@ -51,12 +53,11 @@ class Trivial:
 
 class Schamir:
     @staticmethod
-    def split(secret: int, n: int, t: int, p: int = None, bit_size: int = 512) -> ([int], int):
+    def split(secret: int, n: int, t: int, p: int = None, bit_size: int = 16) -> ([int], int):
         if not p:
             while (p := random_prime(bit_size)) <= secret and p <= n: pass
 
-        #a = [randint_bits(bit_size) for _ in range(t - 1)]
-        a = [62, 352]
+        a = [randint_bits(bit_size) for _ in range(t - 1)]
 
         s = []
         for i in range(1, n + 1):
@@ -84,32 +85,37 @@ class Schamir:
                 top *= -x
                 bottom *= (i - x)
 
-            value = top / bottom * si #TODO ułamek w reszcie
-            factors.append(minus_mod(value, p))
+            if neg_mod(top, bottom) == 0:
+                value = top / bottom
+
+            else:
+                value = 1
+                while value * bottom % p != top:
+                    value += 1
+
+            factors.append(int(neg_mod(value * si, p)))
 
         return sum(factors)
 
     @staticmethod
     def test():
-        pass
+        secret = 1000
+        n = 4
+        t = 3
+
+        split, p = Schamir.split(secret, n, t)
+        print(f"{split=}")
+        print(f"{p=}")
+
+        pool = sample(split, t)
+        print(f"{pool=}")
+
+        merged = Schamir.merge(pool, p)
+        print(f"{merged=}")
+
+        assert secret == merged
 
 
 if __name__ == '__main__':
     # Trivial.test()
-    # Schamir.test()
-
-    secret = 954
-    p = 1523
-    n = 4
-    t = 3
-
-    split, p = Schamir.split(secret, n, t, p=p)
-    print(f"{split=}")
-
-    pool = sample(split, t)
-    print(f"{pool=}")
-
-    merged = Schamir.merge(pool, p)
-    print(f"{merged=}")
-
-    assert secret == merged
+    Schamir.test()
