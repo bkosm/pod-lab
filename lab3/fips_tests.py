@@ -10,7 +10,7 @@ class Fips140_2TestsFor20kElemSeries:
                     6: (103, 209)}
 
     @staticmethod
-    def single_bits(series: list[bool]) -> (bool, int):
+    def single_bits(series: [bool]) -> (bool, int):
         assert len(series) == 20000
 
         ones = len(list(filter(lambda a: a, series)))
@@ -18,7 +18,7 @@ class Fips140_2TestsFor20kElemSeries:
         return 9725 < ones < 10275, ones
 
     @staticmethod
-    def series(series: list[bool]) -> (bool, dict[int, int]):
+    def series(series: [bool]) -> (bool, {int, int}):
         assert len(series) == 20000
 
         results = {i: 0 for i in range(1, 7)}
@@ -43,7 +43,7 @@ class Fips140_2TestsFor20kElemSeries:
         return True, results
 
     @staticmethod
-    def long_series(series: list[bool]) -> bool:
+    def long_series(series: [bool]) -> bool:
         assert len(series) == 20000
 
         last = series[0]
@@ -63,7 +63,7 @@ class Fips140_2TestsFor20kElemSeries:
         return True
 
     @staticmethod
-    def poker(series: list[bool]) -> (bool, float):
+    def poker(series: [bool]) -> (bool, float):
         assert len(series) == 20000
 
         numbers = {k: 0 for k in range(16)}
@@ -82,14 +82,14 @@ class Fips140_2TestsFor20kElemSeries:
         return 2.16 < value < 46.17, value
 
     @staticmethod
-    def test(series: list[bool]) -> None:
+    def test(series: [bool]) -> None:
         assert Fips140_2TestsFor20kElemSeries.single_bits(series)[0] and \
                Fips140_2TestsFor20kElemSeries.series(series)[0] and \
                Fips140_2TestsFor20kElemSeries.long_series(series) and \
                Fips140_2TestsFor20kElemSeries.poker(series)[0], "one of the tests didn't pass"
 
     @staticmethod
-    def visualize(series: list[bool]) -> None:
+    def visualize(series: [bool]) -> None:
         style = lambda e: '.' if elem else '0'
 
         for (i, elem) in enumerate(series):

@@ -6,5 +6,7 @@ if __name__ == '__main__':
     phi = RSA.generate_keys(extract_phi=True)
     series = BBS.generate(20000, preseed=phi)
 
+    print(f"{phi=}")
+
     Fips.test_visual(series)
     Fips.visualize(series)

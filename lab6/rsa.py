@@ -1,6 +1,7 @@
 from math import gcd
 
 from Cryptodome.Util.number import getPrime as random_prime
+from lab4.aes_tests import current_ms, duration_ms
 
 
 def are_coprimes(prime_a: int, prime_b: int) -> bool:
@@ -61,15 +62,22 @@ class RSA:
 
 
 if __name__ == '__main__':
-    RSA.test()
-
+    start = current_ms()
     public, private = RSA.generate_keys()
+    generation_time = duration_ms(start)
+
+    e, n = public
+    d, _ = private
+
+    print(f"{generation_time=} [ms]")
+    print(f"{e=}")
+    print(f"{n=}")
+    print(f"{d=}")
+
     text = "Typowy testowy tekst z polskim znakiem ń."
 
     encrypted = RSA.encrypt(text, public)
-
     print(f"{encrypted=}")
 
     decrypted = RSA.decrypt(encrypted, private)
-
     print(f"{decrypted=}")
