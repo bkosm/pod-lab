@@ -13,10 +13,16 @@ def max_of_nbit(n: int) -> int:
 
 
 def neg_mod(num: int, value: int) -> int:
-    """ Negative modulus to standard format.
+    """ Negative modulus to standard output.
         Example: `neg_mod(-5, 4) == 1`
     """
     return num - int(num / value) * value
+
+
+def polynomial(x: int, coeff: [int]) -> int:
+    """ Calculates the value of a polynomial with coefficients in given order.
+    """
+    return sum([x ** (len(coeff) - i - 1) * coeff[i] for i in range(len(coeff))])
 
 
 class Trivial:
@@ -53,11 +59,12 @@ class Trivial:
 
 class Schamir:
     @staticmethod
-    def split(secret: int, n: int, t: int, p: int = None, bit_size: int = 16) -> ([int], int):
+    def split(secret: int, n: int, t: int, p: int = None, prime_bit_size: int = 16) -> ([int], int):
         if not p:
-            while (p := random_prime(bit_size)) <= secret and p <= n: pass
+            while (p := random_prime(prime_bit_size)) <= secret and p <= n: pass
 
-        a = [randint_bits(bit_size) for _ in range(t - 1)]
+        # a = [randint_range(0, p) for _ in range(t - 1)]
+        a = [62, 352]
 
         s = []
         for i in range(1, n + 1):
@@ -75,47 +82,91 @@ class Schamir:
     def merge(s: [(int, int)], p: int):
         factors = []
 
-        for i, si in s:
+        for xj, yj in s:
             top = 1
             bottom = 1
 
-            for x, _ in s:
-                if i == x: continue
+            for xi, _ in s:
+                if xj == xi: continue
 
-                top *= -x
-                bottom *= (i - x)
+                top *= -xi
+                bottom *= (xi - xj)
 
             if neg_mod(top, bottom) == 0:
-                value = top / bottom
+                value = top // bottom
 
             else:
                 value = 1
                 while value * bottom % p != top:
                     value += 1
 
-            factors.append(int(neg_mod(value * si, p)))
+            factors.append(neg_mod(value * yj, p))
 
         return sum(factors)
 
     @staticmethod
     def test():
-        secret = 1000
+        secret = 954
+        p = 1523
         n = 4
         t = 3
 
-        split, p = Schamir.split(secret, n, t)
-        print(f"{split=}")
-        print(f"{p=}")
+        for _ in range(1000):
+            split, p = Schamir.split(secret, n, t, p=p)
 
-        pool = sample(split, t)
-        print(f"{pool=}")
+            pool = sample(split, t)
 
-        merged = Schamir.merge(pool, p)
-        print(f"{merged=}")
+            merged = Schamir.merge(pool, p)
 
-        assert secret == merged
+            if secret != merged:
+                print(f"failed with {pool=}\n{merged=}")
+        else:
+            print("ok")
+
+
+class WorkingSchamir:
+    @staticmethod
+    def split(n: int, t: int, secret: int, rand_max: int = 10 ** 5) -> [(int, int)]:
+        cfs = [randint_range(0, rand_max) for _ in range(t - 1)] + [secret]
+
+        shares = []
+        for i in range(1, n + 1):
+            r = randint_range(1, rand_max)
+            shares.append((r, polynomial(r, cfs)))
+
+        return shares
+
+    @staticmethod
+    def merge(shares: [(int, int)]) -> int:
+        sums = 0
+
+        for xj, yj in shares:
+            prod = 1
+            for xi, _ in shares:
+                if xi != xj: prod *= xi / (xi - xj)
+
+            prod *= yj
+            sums += prod
+
+        return int(round(sums, 0))
+
+    @staticmethod
+    def test():
+        secret = 954
+        n = 4
+        t = 3
+
+        x = WorkingSchamir.split(n, t, secret)
+
+        pool = sample(x, t)
+        y = WorkingSchamir.merge(pool)
+
+        print(f"{pool=} | {y=}")
+
+        assert secret == y
 
 
 if __name__ == '__main__':
     # Trivial.test()
-    Schamir.test()
+    # Schamir.test()
+    WorkingSchamir.test()
