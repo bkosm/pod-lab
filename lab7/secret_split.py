@@ -61,22 +61,12 @@ class Schamir:
     @staticmethod
     def split(secret: int, n: int, t: int, p: int = None, prime_bit_size: int = 16) -> ([int], int):
         if not p:
-            while (p := random_prime(prime_bit_size)) <= secret and p <= n: pass
+            while (p := random_prime(prime_bit_size)) <= n and p <= secret: continue
 
-        # a = [randint_range(0, p) for _ in range(t - 1)]
-        a = [62, 352]
+        # a = [randint_range(0, 10) for _ in range(t - 1)] + [secret]  # TODO ???
+        a = [62, 352] + [secret]
 
-        s = []
-        for i in range(1, n + 1):
-            total = 0
-            a_index = 0
-            for power in reversed(range(1, t)):
-                total += a[a_index] * (i ** power)
-                a_index += 1
-
-            s.append((i, (total + secret) % p))
-
-        return s, p
+        return [(i, polynomial(i, a) % p) for i in range(1, n + 1)], p
 
     @staticmethod
     def merge(s: [(int, int)], p: int):
@@ -89,7 +79,7 @@ class Schamir:
             for xi, _ in s:
                 if xj == xi: continue
 
-                top *= -xi
+                top *= xi
                 bottom *= (xi - xj)
 
             if neg_mod(top, bottom) == 0:
@@ -107,21 +97,21 @@ class Schamir:
     @staticmethod
     def test():
         secret = 954
-        p = 1523
         n = 4
         t = 3
 
-        for _ in range(1000):
-            split, p = Schamir.split(secret, n, t, p=p)
+        for _ in range(100):
+            split, p = Schamir.split(secret, n, t)
 
             pool = sample(split, t)
 
             merged = Schamir.merge(pool, p)
 
-            if secret != merged:
-                print(f"failed with {pool=}\n{merged=}")
-        else:
-            print("ok")
+            if merged != secret:
+                print(f"failed with {pool=} - {merged=} | {p=}")
+
+            else:
+                print(f"ok with {pool=} - {merged=} | {p=}")
 
 
 class WorkingSchamir:
@@ -168,5 +158,5 @@ class WorkingSchamir:
 
 if __name__ == '__main__':
     # Trivial.test()
-    # Schamir.test()
-    WorkingSchamir.test()
+    Schamir.test()
+    # WorkingSchamir.test()
