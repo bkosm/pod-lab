@@ -1,7 +1,14 @@
 from math import gcd
+from base64 import b64encode, b64decode
 
 from Cryptodome.Util.number import getPrime as random_prime
 from lab4.aes_tests import current_ms, duration_ms
+
+from forbiddenfruit import curse
+
+""" Int extenstion for zfilling.
+"""
+curse(int, 'zpad', lambda self, zeroes: str(self).zfill(zeroes))
 
 
 def are_coprimes(prime_a: int, prime_b: int) -> bool:
@@ -42,16 +49,22 @@ class RSA:
         return (e, n), (d, n)
 
     @staticmethod
-    def encrypt(message: str, keys: (int, int)) -> [int]:
+    def encrypt(message: str, keys: (int, int)) -> bytes:
         e, n = keys
 
-        return [pow(ord(c), e, n) for c in message]
+        encrypted = [pow(ord(c), e, n) for c in message]
+        as_str = ' '.join([str(i) for i in encrypted])
+
+        return b64encode(as_str.encode('utf8'))
 
     @staticmethod
-    def decrypt(encrypted: [int], keys: (int, int)) -> str:
+    def decrypt(encrypted: bytes, keys: (int, int)) -> str:
         d, n = keys
 
-        return ''.join([chr(pow(c, d, n)) for c in encrypted])
+        as_str = b64decode(encrypted).decode('utf8')
+        numbers = [int(i) for i in as_str.split(' ')]
+
+        return ''.join([chr(pow(c, d, n)) for c in numbers])
 
     @staticmethod
     def test():
@@ -69,15 +82,12 @@ if __name__ == '__main__':
     e, n = public
     d, _ = private
 
-    print(f"{generation_time=} [ms]")
-    print(f"{e=}")
-    print(f"{n=}")
-    print(f"{d=}")
+    print(f"{generation_time=} [ms]\n{e=}\n{n=}\n{d=}")
 
     text = "Typowy testowy tekst z polskim znakiem ń."
 
     encrypted = RSA.encrypt(text, public)
-    print(f"{encrypted=}")
+    print(f"[{len(encrypted).zpad(5)} B] {encrypted=}")
 
     decrypted = RSA.decrypt(encrypted, private)
-    print(f"{decrypted=}")
+    print(f"[{len(decrypted).zpad(5)} B] {decrypted=}")
