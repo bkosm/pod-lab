@@ -4,6 +4,9 @@ from Cryptodome.Util.number import getRandomInteger as randint_bits, getPrime as
 from random import sample
 
 from lab4.aes_tests import current_ms, duration_ms
+from lab6.rsa import extended_gcd
+
+from lab3.bbs import BBS
 
 
 def max_of_nbit(n: int) -> int:
@@ -23,6 +26,14 @@ def polynomial(x: int, coeff: [int]) -> int:
     """ Calculates the value of a polynomial with coefficients in given order.
     """
     return sum([x ** (len(coeff) - i - 1) * coeff[i] for i in range(len(coeff))])
+
+
+def inv_mod(a, m):
+    g, x, y = extended_gcd(a, m)
+    if g != 1:
+        return None
+    else:
+        return x % m
 
 
 class Trivial:
@@ -63,8 +74,8 @@ class Schamir:
         if not p:
             while (p := random_prime(prime_bit_size)) <= n and p <= secret: continue
 
-        # a = [randint_range(0, 10) for _ in range(t - 1)] + [secret]  # TODO ???
-        a = [62, 352] + [secret]
+        a = [randint_range(0, 10) for _ in range(t - 1)] + [secret]  # TODO ???
+        # a = [62, 352] + [secret]
 
         return [(i, polynomial(i, a) % p) for i in range(1, n + 1)], p
 
@@ -82,12 +93,11 @@ class Schamir:
                 top *= xi
                 bottom *= (xi - xj)
 
-            if neg_mod(top, bottom) == 0:
-                value = top // bottom
+            value = top // bottom
 
-            else:
+            if neg_mod(top, bottom) != 0:
                 value = 1
-                while value * bottom % p != top:
+                while (value * (bottom % p + p) % p) % p != top:
                     value += 1
 
             factors.append(neg_mod(value * yj, p))
