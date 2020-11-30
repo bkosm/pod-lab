@@ -1,6 +1,8 @@
 import argparse as argp
-from typing import Any, Callable
+from typing import Any, Callable, Optional
 from Cryptodome.Hash import MD5, SHA1, SHA224, SHA256, SHA384, SHA512, SHA3_224, SHA3_256, SHA3_384, SHA3_512
+from requests import post
+from bs4 import BeautifulSoup
 
 from lab4.aes_tests import current_ms, duration_ms
 
@@ -42,6 +44,20 @@ def __get_command_line_args() -> dict[str, Any]:
     return vars(parser.parse_args())
 
 
+def reverse_md5(hexhash: str) -> Optional[str]:
+    result = post("http://md5.my-addr.com/md5_decrypt-md5_cracker_online/md5_decoder_tool.php", {
+        'md5': hexhash
+    })
+    soup = BeautifulSoup(result.text, 'html.parser')
+
+    try:
+        div_text = soup.findAll("div", {"class": "white_bg_title"}).pop().text
+        return div_text.split(' ').pop()
+
+    except IndexError:
+        return None
+
+
 if __name__ == '__main__':
     args = __get_command_line_args()
     text = ""
@@ -52,12 +68,17 @@ if __name__ == '__main__':
             text = ''.join(f.readlines())
 
     else:
-        text = args['input']
+        text = args['text']
 
     if args['md5']:
         start = current_ms()
-        print(hexdigest(ALGORITHMS['md5'], text))
+        result = hexdigest(ALGORITHMS['md5'], text)
         duration = duration_ms(start)
+
+        print(result)
+
+        if reverse_md5(result) == text:
+            print("this word is easily reversible")
 
     elif args['sha1']:
         start = current_ms()

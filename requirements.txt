@@ -5,3 +5,5 @@ pycryptodomex
 asyncio
 faker
 forbiddenfruit
+requests
+bs4
