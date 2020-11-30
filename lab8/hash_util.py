@@ -1,8 +1,7 @@
 import argparse as argp
-from typing import Any, Callable, Optional
+from typing import Any, Callable
 from Cryptodome.Hash import MD5, SHA1, SHA224, SHA256, SHA384, SHA512, SHA3_224, SHA3_256, SHA3_384, SHA3_512
-from requests import post
-from bs4 import BeautifulSoup
+from requests import get
 
 from lab4.aes_tests import current_ms, duration_ms
 
@@ -22,7 +21,12 @@ def hexdigest(algorithm: Callable, text: str, encoding='utf8') -> str:
     return algorithm(text.encode(encoding)).hexdigest()
 
 
-def __get_command_line_args() -> dict[str, Any]:
+def reverse_hash(hexhash: str) -> (str, str):
+    result = get(f"https://h4dluemlfd.execute-api.eu-west-1.amazonaws.com/LATEST/byhash?hashstr={hexhash}").json()
+    return result['word'], result['alg']
+
+
+def get_parsed_arguments() -> dict[str, Any]:
     sha_variants = {224, 256, 384, 512}
 
     parser = argp.ArgumentParser(description="hexdigest on given input with specified algorithm")
@@ -44,23 +48,10 @@ def __get_command_line_args() -> dict[str, Any]:
     return vars(parser.parse_args())
 
 
-def reverse_md5(hexhash: str) -> Optional[str]:
-    result = post("http://md5.my-addr.com/md5_decrypt-md5_cracker_online/md5_decoder_tool.php", {
-        'md5': hexhash
-    })
-    soup = BeautifulSoup(result.text, 'html.parser')
-
-    try:
-        div_text = soup.findAll("div", {"class": "white_bg_title"}).pop().text
-        return div_text.split(' ').pop()
-
-    except IndexError:
-        return None
-
-
 if __name__ == '__main__':
-    args = __get_command_line_args()
+    args = get_parsed_arguments()
     text = ""
+    result = ""
     duration = 0
 
     if filename := args['file']:
@@ -70,30 +61,30 @@ if __name__ == '__main__':
     else:
         text = args['text']
 
+    start = current_ms()
+
     if args['md5']:
-        start = current_ms()
         result = hexdigest(ALGORITHMS['md5'], text)
-        duration = duration_ms(start)
-
-        print(result)
-
-        if reverse_md5(result) == text:
-            print("this word is easily reversible")
 
     elif args['sha1']:
-        start = current_ms()
-        print(hexdigest(ALGORITHMS['sha1'], text))
-        duration = duration_ms(start)
+        result = hexdigest(ALGORITHMS['sha1'], text)
 
     elif variant := args['sha2']:
-        start = current_ms()
-        print(hexdigest(ALGORITHMS['sha2'][variant], text))
-        duration = duration_ms(start)
+        result = hexdigest(ALGORITHMS['sha2'][variant], text)
 
     elif variant := args['sha3']:
-        start = current_ms()
-        print(hexdigest(ALGORITHMS['sha3'][variant], text))
-        duration = duration_ms(start)
+        result = hexdigest(ALGORITHMS['sha3'][variant], text)
+
+    duration = duration_ms(start)
+
+    print(result)
 
     if args['v']:
-        print(f"{duration=} [ms]")
+        print(f"{duration=}[ms]")
+
+        word, alg = reverse_hash(result)
+
+        if word == text:
+            print(f"'{word}' is easily reversible when used with {alg}")
+        else:
+            print('given word is not easy to look up')

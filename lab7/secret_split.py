@@ -1,12 +1,10 @@
+from random import sample
+
 from Cryptodome.Random.random import randint as randint_range
 from Cryptodome.Util.number import getRandomInteger as randint_bits, getPrime as random_prime
 
-from random import sample
-
 from lab4.aes_tests import current_ms, duration_ms
 from lab6.rsa import extended_gcd
-
-from lab3.bbs import BBS
 
 
 def max_of_nbit(n: int) -> int:
