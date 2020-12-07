@@ -7,4 +7,5 @@ faker
 forbiddenfruit
 requests
 bs4
-sympy
+pillow
+numpy
