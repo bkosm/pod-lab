@@ -1,4 +1,5 @@
 from random import sample
+from math import fmod
 
 from Cryptodome.Random.random import randint as randint_range
 from Cryptodome.Util.number import getRandomInteger as randint_bits, getPrime as random_prime
@@ -20,10 +21,10 @@ def neg_mod(num: int, value: int) -> int:
     return num - int(num / value) * value
 
 
-def polynomial(x: int, coeff: [int]) -> int:
+def polynomial(x: int, coeffs: [int]) -> int:
     """ Calculates the value of a polynomial with coefficients in given order.
     """
-    return sum([x ** (len(coeff) - i - 1) * coeff[i] for i in range(len(coeff))])
+    return sum([x ** (len(coeffs) - i - 1) * coeffs[i] for i in range(len(coeffs))])
 
 
 def inv_mod(a, m):
@@ -32,6 +33,36 @@ def inv_mod(a, m):
         return None
     else:
         return x % m
+
+
+def _extended_gcd(a, b):
+    """
+    Division in integers modulus p means finding the inverse of the
+    denominator modulo p and then multiplying the numerator by this
+    inverse (Note: inverse of A is B such that A*B % p == 1) this can
+    be computed via extended Euclidean algorithm
+    http://en.wikipedia.org/wiki/Modular_multiplicative_inverse#Computation
+    """
+    x = 0
+    last_x = 1
+    y = 1
+    last_y = 0
+    while b != 0:
+        quot = a // b
+        a, b = b, a % b
+        x, last_x = last_x - quot * x, x
+        y, last_y = last_y - quot * y, y
+    return last_x, last_y
+
+
+def div_mod(num, den, p):
+    """Compute num / den modulo prime p
+
+    To explain what this means, the return value will be such that
+    the following is true: den * _divmod(num, den, p) % p == num
+    """
+    inv, _ = _extended_gcd(den, p)
+    return num * inv
 
 
 class Trivial:
@@ -68,12 +99,8 @@ class Trivial:
 
 class Schamir:
     @staticmethod
-    def split(secret: int, n: int, t: int, p: int = None, prime_bit_size: int = 16) -> ([int], int):
-        if not p:
-            while (p := random_prime(prime_bit_size)) <= n and p <= secret: continue
-
-        a = [randint_range(0, 10) for _ in range(t - 1)] + [secret]  # TODO ???
-        # a = [62, 352] + [secret]
+    def split(secret: int, n: int, t: int, p: int) -> ([int], int):
+        a = [randint_range(0, 10) for _ in range(t - 1)] + [secret]
 
         return [(i, polynomial(i, a) % p) for i in range(1, n + 1)], p
 
@@ -89,27 +116,24 @@ class Schamir:
                 if xj == xi: continue
 
                 top *= xi
-                bottom *= (xi - xj)
+                bottom *= xi - xj
 
-            value = top // bottom
-
-            if neg_mod(top, bottom) != 0:
-                value = 1
-                while (value * (bottom % p + p) % p) % p != top:
-                    value += 1
+            value = div_mod(top, bottom, p)
 
             factors.append(neg_mod(value * yj, p))
 
-        return sum(factors)
+        result = sum(factors)
+        return result + p if result < 0 else result
 
     @staticmethod
     def test():
         secret = 954
         n = 4
         t = 3
+        prime = 2 ** 127 - 1
 
         for _ in range(100):
-            split, p = Schamir.split(secret, n, t)
+            split, p = Schamir.split(secret, n, t, p=prime)
 
             pool = sample(split, t)
 
@@ -122,7 +146,7 @@ class Schamir:
                 print(f"ok with {pool=} - {merged=} | {p=}")
 
 
-class WorkingSchamir:
+class SimpleSchamir:
     @staticmethod
     def split(n: int, t: int, secret: int, rand_max: int = 10 ** 5) -> [(int, int)]:
         cfs = [randint_range(0, rand_max) for _ in range(t - 1)] + [secret]
@@ -154,10 +178,10 @@ class WorkingSchamir:
         n = 4
         t = 3
 
-        x = WorkingSchamir.split(n, t, secret)
+        x = SimpleSchamir.split(n, t, secret)
 
         pool = sample(x, t)
-        y = WorkingSchamir.merge(pool)
+        y = SimpleSchamir.merge(pool)
 
         print(f"{pool=} | {y=}")
 
@@ -166,5 +190,10 @@ class WorkingSchamir:
 
 if __name__ == '__main__':
     # Trivial.test()
-    Schamir.test()
+    # Schamir.test()
     # WorkingSchamir.test()
+
+    prime = 2 ** 127 - 1
+    shares, _ = Schamir.split(1234152, 10, 5, prime)
+
+    print(Schamir.merge(shares[5:], prime))
