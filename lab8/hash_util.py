@@ -44,6 +44,7 @@ def get_parsed_arguments() -> dict[str, Any]:
                            help=f'use specified variant of sha3')
 
     parser.add_argument('-v', action='store_true', help='set verbose output (measured time)')
+    parser.add_argument('-r', action='store_true', help='check if hash is widely available (easy to crack)')
 
     return vars(parser.parse_args())
 
@@ -82,6 +83,7 @@ if __name__ == '__main__':
     if args['v']:
         print(f"{duration=}[ms]")
 
+    if args['r']:
         word, alg = reverse_hash(result)
 
         if word == text:
