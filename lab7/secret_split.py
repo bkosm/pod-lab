@@ -1,8 +1,7 @@
 from random import sample
-from math import fmod
 
 from Cryptodome.Random.random import randint as randint_range
-from Cryptodome.Util.number import getRandomInteger as randint_bits, getPrime as random_prime
+from Cryptodome.Util.number import getRandomInteger as randint_bits
 
 from lab4.aes_tests import current_ms, duration_ms
 from lab6.rsa import extended_gcd
