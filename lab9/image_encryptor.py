@@ -7,6 +7,12 @@ WHITE_BMP = 255
 BLACK_BMP = 0
 
 
+def is_considered_black(pixel: int) -> bool:
+    """ Used for rounding grayscale.
+    """
+    return pixel < WHITE_BMP // 2
+
+
 class BitmapEncryptor:
     def __init__(self, path: str):
         """ Open image from given path and prepare a pixel matrix
@@ -24,15 +30,16 @@ class BitmapEncryptor:
         """ Split a bitmap into two encrypted images.
         """
         width, height = self.image.size
+        white_variants: [(int, int)] = [(WHITE_BMP, BLACK_BMP), (BLACK_BMP, WHITE_BMP)]
+        black_variants: [((int, int), (int, int))] = [((WHITE_BMP, BLACK_BMP), (BLACK_BMP, WHITE_BMP)),
+                                                      ((BLACK_BMP, WHITE_BMP), (WHITE_BMP, BLACK_BMP))]
+
         share1, share2 = np.ndarray((height, width * 2)), np.ndarray((height, width * 2))
-        white_variants = [(WHITE_BMP, BLACK_BMP), (BLACK_BMP, WHITE_BMP)]
-        black_variants = [((WHITE_BMP, BLACK_BMP), (BLACK_BMP, WHITE_BMP)),
-                          ((BLACK_BMP, WHITE_BMP), (WHITE_BMP, BLACK_BMP))]
 
         position = 0
         for x in range(height):
             for y in range(width):
-                if self.pixels[x, y] < WHITE_BMP // 2:  # org is black
+                if is_considered_black(self.pixels[x, y]):
                     black1, black2 = choice(black_variants)  # random black combnation
 
                     share1[x, position] = black1[0]
