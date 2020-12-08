@@ -13,7 +13,7 @@ def is_considered_black(pixel: int) -> bool:
     return pixel < WHITE_BMP // 2
 
 
-class BitmapEncryptor:
+class BitmapSplitter:
     def __init__(self, path: str):
         """ Open image from given path and prepare a pixel matrix
         """
@@ -21,12 +21,7 @@ class BitmapEncryptor:
         self.image = Image.open(self.path)
         self.pixels = np.array(self.image)
 
-    def peek(self) -> None:
-        """ Open the loaded and processed image in current state in file browser.
-        """
-        Image.fromarray(self.pixels).show()
-
-    def split_bitmap_in_two(self) -> (Image, Image):
+    def split_in_two(self) -> (Image, Image):
         """ Split a bitmap into two encrypted images.
         """
         width, height = self.image.size
@@ -61,7 +56,7 @@ class BitmapEncryptor:
         return Image.fromarray(share1), Image.fromarray(share2)
 
     @staticmethod
-    def merge_two_bitmaps(image1: Image, image2: Image) -> Image:
+    def merge_two(image1: Image, image2: Image) -> Image:
         """ Merge two bitmaps into one to reveal the secret.
         """
         width, height = image1.size
@@ -79,11 +74,11 @@ class BitmapEncryptor:
 
 
 if __name__ == '__main__':
-    img = BitmapEncryptor('./2.bmp')
+    img = BitmapSplitter('./2.bmp')
 
-    share1, share2 = img.split_bitmap_in_two()
+    share1, share2 = img.split_in_two()
 
     share1.show()
     share2.show()
 
-    BitmapEncryptor.merge_two_bitmaps(share1, share2).show()
+    BitmapSplitter.merge_two(share1, share2).show()
