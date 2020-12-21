@@ -18,7 +18,7 @@ class LSB:
         self.image = Image.open(self.path)
         self.pixels = np.array(self.image)
 
-    def encode(self, message: str, byte_fill=8, encoding='utf8') -> Image:
+    def encode(self, message: str, byte_fill=8, encoding='utf8', default_pos=-1) -> Image:
         """ Encode a rgb bitmap with specified message.
             If you're using a different encoding specify the byte_fill accordingly.
             It must be bigger or equal to that encoding's char size.
@@ -40,7 +40,7 @@ class LSB:
 
                     for color in rgb_bitarrays:
                         if not is_generator_empty and (bit := next(bits_gen, None)):
-                            color.set(bit == '1', -1)
+                            color.set(bit == '1', default_pos)
                         else:
                             is_generator_empty = True
                             break
@@ -52,7 +52,7 @@ class LSB:
         return Image.fromarray(encoded)
 
     @staticmethod
-    def decode(image: Image, byte_fill=8, encoding='utf8') -> str:
+    def decode(image: Image, byte_fill=8, encoding='utf8', default_pos=-1) -> str:
         """ Retrieve a message hidden in a rgb bitmap image.
         """
         width, height = image.size
@@ -66,7 +66,7 @@ class LSB:
                 rgb_bitarrays = bitarrays_from_pixel(pixels[x, y])
 
                 for color in rgb_bitarrays:
-                    temp += '1' if color[-1] else '0'
+                    temp += '1' if color[default_pos] else '0'
                     counter += 1
 
                     if counter == byte_fill:
@@ -84,8 +84,9 @@ class LSB:
 
 if __name__ == '__main__':
     img = LSB('./10_1.bmp')
+    msg = 'Witam z wiadomości w obrazie. Witam z wiadomości w obrazie. Witam z wiadomości w obrazie. Witam z wiadomości w obrazie. Witam z wiadomości w obrazie. Witam z wiadomości w obrazie. Witam z wiadomości w obrazie. Witam z wiadomości w obrazie. Witam z wiadomości w obrazie. Witam z wiadomości w obrazie. Witam z wiadomości w obrazie. Witam z wiadomości w obrazie. Witam z wiadomości w obrazie. Witam z wiadomości w obrazie. Witam z wiadomości w obrazie. Witam z wiadomości w obrazie. Witam z wiadomości w obrazie. Witam z wiadomości w obrazie. Witam z wiadomości w obrazie. Witam z wiadomości w obrazie.'
 
-    encoded = img.encode('Witam z wiadomości w obrazie.')
+    encoded = img.encode(msg)
     encoded.show()
 
     print(LSB.decode(encoded))

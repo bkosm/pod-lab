@@ -104,7 +104,7 @@ class BBS:
         elem = pow(x, 2, blum_number)
 
         for _ in range(length):
-            result.append(True if bin(elem)[-1] == '1' else False)
+            result += [bin(elem)[-1] == '1']
 
             elem = pow(elem, 2, blum_number)
 
